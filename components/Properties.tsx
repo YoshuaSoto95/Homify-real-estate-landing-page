@@ -5,7 +5,10 @@ import { BathIcon } from './icons/BathIcon';
 import { AreaIcon } from './icons/AreaIcon';
 import { ChevronLeftIcon } from './icons/ChevronLeftIcon';
 import { ChevronRightIcon } from './icons/ChevronRightIcon';
+import { CompareIcon } from './icons/CompareIcon';
+import { CloseIcon } from './icons/CloseIcon';
 import PropertyModal from './PropertyModal';
+import ComparisonModal from './ComparisonModal';
 
 interface Property {
     image: string;
@@ -107,8 +110,23 @@ interface PropertiesProps {
 const Properties: React.FC<PropertiesProps> = ({ onContactClick }) => {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+    const [comparisonList, setComparisonList] = useState<Property[]>([]);
+    const [isComparisonModalOpen, setIsComparisonModalOpen] = useState(false);
     const intervalRef = useRef<number | null>(null);
     const cardWidthRef = useRef(0);
+
+    const handleToggleCompare = (property: Property) => {
+        setComparisonList(prevList => {
+            const isInList = prevList.find(p => p.title === property.title);
+            if (isInList) {
+                return prevList.filter(p => p.title !== property.title);
+            } else if (prevList.length < 3) {
+                return [...prevList, property];
+            }
+            // Optionally: show a notification that the limit is 3
+            return prevList;
+        });
+    };
 
     const scroll = (direction: number) => {
         if (scrollContainerRef.current) {
@@ -187,33 +205,49 @@ const Properties: React.FC<PropertiesProps> = ({ onContactClick }) => {
                 style={{ scrollbarWidth: 'none', '-ms-overflow-style': 'none' }}
             >
                 <div className="flex gap-8">
-                    {properties.map((property, index) => (
-                        <motion.div
-                        key={index}
-                        className="bg-[#0C1018] rounded-xl overflow-hidden shadow-2xl shadow-black/30 border border-white/10 group flex flex-col w-[90vw] sm:w-[45vw] lg:w-[30vw] flex-shrink-0 snap-start"
-                        variants={cardVariants}
-                        >
-                        <div className="overflow-hidden">
-                            <img src={property.image} alt={property.title} className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500 ease-in-out" />
-                        </div>
-                        <div className="p-6 flex flex-col flex-grow">
-                            <h3 className="text-xl font-bold text-[#E6E8EC]">{property.title}</h3>
-                            <p className="mt-2 text-2xl font-semibold text-[#D4AF37]">{property.price}</p>
-                            <div className="flex items-center space-x-6 mt-4 text-sm text-[#9AA3B2] border-t border-white/10 pt-4">
-                                <span className="flex items-center"><BedIcon className="h-5 w-5 mr-2" /> {property.beds} Beds</span>
-                                <span className="flex items-center"><BathIcon className="h-5 w-5 mr-2" /> {property.baths} Baths</span>
-                                <span className="flex items-center"><AreaIcon className="h-5 w-5 mr-2" /> {property.sqft} sqft</span>
+                    {properties.map((property, index) => {
+                        const isInCompareList = !!comparisonList.find(p => p.title === property.title);
+                        return (
+                            <motion.div
+                            key={index}
+                            className="bg-[#0C1018] rounded-xl overflow-hidden shadow-2xl shadow-black/30 border border-white/10 group flex flex-col w-[90vw] sm:w-[45vw] lg:w-[30vw] flex-shrink-0 snap-start"
+                            variants={cardVariants}
+                            >
+                            <div className="overflow-hidden">
+                                <img src={property.image} alt={property.title} className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500 ease-in-out" />
                             </div>
-                            <div className="mt-auto pt-6">
-                                <button 
-                                    onClick={() => setSelectedProperty(property)}
-                                    className="w-full px-4 py-3 text-base font-semibold text-[#0A0D14] bg-[#D4AF37] rounded-full shadow-lg shadow-[#D4AF37]/20 hover:bg-yellow-300 transition-colors duration-300">
-                                    View Details
-                                </button>
+                            <div className="p-6 flex flex-col flex-grow">
+                                <h3 className="text-xl font-bold text-[#E6E8EC]">{property.title}</h3>
+                                <p className="mt-2 text-2xl font-semibold text-[#D4AF37]">{property.price}</p>
+                                <div className="flex items-center space-x-6 mt-4 text-sm text-[#9AA3B2] border-t border-white/10 pt-4">
+                                    <span className="flex items-center"><BedIcon className="h-5 w-5 mr-2" /> {property.beds} Beds</span>
+                                    <span className="flex items-center"><BathIcon className="h-5 w-5 mr-2" /> {property.baths} Baths</span>
+                                    <span className="flex items-center"><AreaIcon className="h-5 w-5 mr-2" /> {property.sqft} sqft</span>
+                                </div>
+                                <div className="mt-auto pt-6 flex items-center gap-4">
+                                    <button 
+                                        onClick={() => setSelectedProperty(property)}
+                                        className="flex-grow px-4 py-3 text-sm font-semibold text-[#0A0D14] bg-[#D4AF37] rounded-full shadow-lg shadow-[#D4AF37]/20 hover:bg-yellow-300 transition-colors duration-300">
+                                        View Details
+                                    </button>
+                                    <button
+                                        onClick={() => handleToggleCompare(property)}
+                                        disabled={comparisonList.length >= 3 && !isInCompareList}
+                                        className={`p-3 rounded-full transition-colors duration-300 ${
+                                            isInCompareList
+                                                ? 'bg-[#D4AF37] text-[#0A0D14]'
+                                                : 'bg-white/10 text-white hover:bg-white/20'
+                                        } disabled:opacity-50 disabled:cursor-not-allowed`}
+                                        aria-label={isInCompareList ? "Remove from comparison" : "Add to comparison"}
+                                        title={isInCompareList ? "Remove from comparison" : "Add to comparison"}
+                                    >
+                                        <CompareIcon className="h-5 w-5" />
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                        </motion.div>
-                    ))}
+                            </motion.div>
+                        )
+                    })}
                 </div>
             </motion.div>
             
@@ -244,6 +278,58 @@ const Properties: React.FC<PropertiesProps> = ({ onContactClick }) => {
                 property={selectedProperty} 
                 onClose={() => setSelectedProperty(null)} 
                 onContactAgent={() => handleContactAgent(selectedProperty)}
+            />
+        )}
+    </AnimatePresence>
+    
+    <AnimatePresence>
+        {comparisonList.length > 0 && (
+            <motion.div
+                className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 w-[95%] max-w-xl bg-[#0C1018]/80 backdrop-blur-md border border-white/20 rounded-xl shadow-2xl p-3 sm:p-4 flex items-center justify-between"
+                initial={{ y: 100, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 100, opacity: 0 }}
+                transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+            >
+                <div className="flex items-center gap-2 sm:gap-3">
+                    <p className="font-bold text-white mr-2 hidden sm:block">Comparing</p>
+                    <div className="flex items-center gap-2">
+                        {comparisonList.map(p => (
+                            <img key={p.title} src={p.image} alt={p.title} className="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded-md border-2 border-[#D4AF37]" />
+                        ))}
+                        {Array.from({ length: 3 - comparisonList.length }).map((_, i) => (
+                            <div key={i} className="w-10 h-10 sm:w-12 sm:h-12 bg-white/10 rounded-md flex items-center justify-center p-1">
+                               <span className="text-white/30 text-[10px] text-center leading-tight hidden sm:block">Add Property</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+                <div className="flex items-center gap-2 sm:gap-3">
+                     <button
+                        onClick={() => setIsComparisonModalOpen(true)}
+                        disabled={comparisonList.length < 2}
+                        className="px-3 sm:px-5 py-2 text-xs sm:text-sm font-semibold text-[#0A0D14] bg-[#D4AF37] rounded-full hover:bg-yellow-300 transition-colors disabled:bg-gray-500 disabled:cursor-not-allowed"
+                        title={comparisonList.length < 2 ? "Add at least 2 properties to compare" : "Compare selected properties"}
+                    >
+                        Compare ({comparisonList.length})
+                    </button>
+                    <button
+                        onClick={() => setComparisonList([])}
+                        className="p-2 bg-white/10 rounded-full text-white hover:bg-white/20"
+                        aria-label="Clear comparison"
+                    >
+                        <CloseIcon className="w-4 h-4" />
+                    </button>
+                </div>
+            </motion.div>
+        )}
+    </AnimatePresence>
+
+    <AnimatePresence>
+        {isComparisonModalOpen && (
+            <ComparisonModal
+                properties={comparisonList}
+                onClose={() => setIsComparisonModalOpen(false)}
             />
         )}
     </AnimatePresence>

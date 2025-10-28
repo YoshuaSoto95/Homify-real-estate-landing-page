@@ -64,16 +64,6 @@ const Header: React.FC<HeaderProps> = ({ onContactClick }) => {
     };
   }, []);
   
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    e.preventDefault();
-    const targetId = href.substring(1);
-    const targetElement = document.getElementById(targetId);
-    if (targetElement) {
-        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-    setIsOpen(false);
-  };
-
   const listVariants = {
     open: {
       transition: { staggerChildren: 0.07, delayChildren: 0.2 },
@@ -123,7 +113,6 @@ const Header: React.FC<HeaderProps> = ({ onContactClick }) => {
                 <a
                   key={item.name}
                   href={item.href}
-                  onClick={(e) => handleNavClick(e, item.href)}
                   className="text-sm font-medium text-[#E6E8EC] hover:text-[#D4AF37] transition-colors duration-300 cursor-pointer"
                 >
                   {item.name}
@@ -188,7 +177,7 @@ const Header: React.FC<HeaderProps> = ({ onContactClick }) => {
                         href={item.href}
                         className="text-2xl font-semibold text-[#E6E8EC] my-4"
                         variants={itemVariants}
-                        onClick={(e) => handleNavClick(e, item.href)}
+                        onClick={() => setIsOpen(false)}
                     >
                         {item.name}
                     </motion.a>
