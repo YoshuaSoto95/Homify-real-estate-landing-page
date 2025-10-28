@@ -5,10 +5,10 @@ import { TwitterIcon } from './icons/TwitterIcon';
 import { InstagramIcon } from './icons/InstagramIcon';
 
 const navItems = [
-  { name: 'About Us', href: '#' },
-  { name: 'Properties', href: '#' },
-  { name: 'Realtors', href: '#' },
-  { name: 'Contacts', href: '#' },
+  { name: 'About Us', href: '#about-us' },
+  { name: 'Properties', href: '#properties' },
+  { name: 'Realtors', href: '#realtors' },
+  { name: 'Contact', href: '#contact' },
 ];
 
 const socialLinks = [
@@ -18,6 +18,15 @@ const socialLinks = [
 ];
 
 const Footer: React.FC = () => {
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    const targetId = href.substring(1);
+    const targetElement = document.getElementById(targetId);
+    if (targetElement) {
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+  
   return (
     <footer className="bg-[#0C1018] border-t border-white/10">
       <div className="container mx-auto px-6 lg:px-8 py-16">
@@ -48,7 +57,7 @@ const Footer: React.FC = () => {
             <ul className="space-y-3">
               {navItems.map((item) => (
                 <li key={item.name}>
-                  <a href={item.href} className="text-sm text-[#9AA3B2] hover:text-[#D4AF37] transition-colors duration-300">
+                  <a href={item.href} onClick={(e) => handleNavClick(e, item.href)} className="text-sm text-[#9AA3B2] hover:text-[#D4AF37] transition-colors duration-300 cursor-pointer">
                     {item.name}
                   </a>
                 </li>

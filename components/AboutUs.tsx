@@ -30,9 +30,13 @@ const imageVariants = {
     },
   };
 
-const AboutUs: React.FC = () => {
+interface AboutUsProps {
+    onContactClick: () => void;
+}
+
+const AboutUs: React.FC<AboutUsProps> = ({ onContactClick }) => {
   return (
-    <section className="bg-[#0C1018] text-[#E6E8EC] py-24 sm:py-32">
+    <section id="about-us" className="bg-[#0C1018] text-[#E6E8EC] py-24 sm:py-32">
       <motion.div
         className="container mx-auto px-6 lg:px-8 grid lg:grid-cols-2 gap-16 items-center"
         initial="hidden"
@@ -52,9 +56,12 @@ const AboutUs: React.FC = () => {
             HomiFi isn't just a platform; it's a curated ecosystem for the discerning real estate investor. Born from a partnership of seasoned realtors and savvy investors, we bridge the gap between ambition and acquisition. We provide exclusive access to premium properties and data-driven insights to ensure your portfolio thrives.
           </motion.p>
           <motion.div variants={textVariants} className="mt-10">
-            <a href="#" className="px-6 py-3 text-base font-semibold text-[#0A0D14] bg-[#D4AF37] rounded-full shadow-lg shadow-[#D4AF37]/20 hover:bg-yellow-300 transition-colors duration-300">
+            <button
+                onClick={onContactClick}
+                className="px-6 py-3 text-base font-semibold text-[#0A0D14] bg-[#D4AF37] rounded-full shadow-lg shadow-[#D4AF37]/20 hover:bg-yellow-300 transition-colors duration-300 cursor-pointer"
+            >
                 Learn More
-            </a>
+            </button>
           </motion.div>
         </div>
 

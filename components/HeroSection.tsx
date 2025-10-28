@@ -32,6 +32,11 @@ const stats = [
 ];
 
 const HeroSection: React.FC = () => {
+  const handleExploreClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    document.getElementById('properties')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <section 
       className="relative h-auto lg:h-screen flex flex-col justify-center lg:justify-between gap-16 lg:gap-0 overflow-hidden bg-cover bg-center pt-40 lg:pt-52 pb-16 lg:pb-24 px-6 sm:px-12 lg:px-24" 
@@ -66,7 +71,11 @@ const HeroSection: React.FC = () => {
             transition={{ duration: 0.8, delay: 0.9 }}
             className="mt-10"
         >
-            <a href="#" className="px-8 py-4 text-lg font-semibold text-[#0A0D14] bg-[#D4AF37] rounded-full shadow-lg shadow-[#D4AF37]/30 hover:bg-yellow-300 transition-colors duration-300">
+            <a 
+                href="#properties"
+                onClick={handleExploreClick}
+                className="px-8 py-4 text-lg font-semibold text-[#0A0D14] bg-[#D4AF37] rounded-full shadow-lg shadow-[#D4AF37]/30 hover:bg-yellow-300 transition-colors duration-300 cursor-pointer"
+            >
                 Explore Properties
             </a>
         </motion.div>

@@ -3,10 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { LogoIcon } from './icons/LogoIcon';
 
 const navItems = [
-  { name: 'About Us', href: '#' },
-  { name: 'Properties', href: '#' },
-  { name: 'Realtors', href: '#' },
-  { name: 'Contacts', href: '#' },
+  { name: 'About Us', href: '#about-us' },
+  { name: 'Properties', href: '#properties' },
+  { name: 'Realtors', href: '#realtors' },
+  { name: 'Contact', href: '#contact' },
 ];
 
 const Path = (props: any) => (
@@ -46,7 +46,11 @@ const MenuToggle: React.FC<{ toggle: () => void }> = ({ toggle }) => (
   </button>
 );
 
-const Header: React.FC = () => {
+interface HeaderProps {
+    onContactClick: () => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ onContactClick }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -59,6 +63,16 @@ const Header: React.FC = () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
+  
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    const targetId = href.substring(1);
+    const targetElement = document.getElementById(targetId);
+    if (targetElement) {
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    setIsOpen(false);
+  };
 
   const listVariants = {
     open: {
@@ -109,7 +123,8 @@ const Header: React.FC = () => {
                 <a
                   key={item.name}
                   href={item.href}
-                  className="text-sm font-medium text-[#E6E8EC] hover:text-[#D4AF37] transition-colors duration-300"
+                  onClick={(e) => handleNavClick(e, item.href)}
+                  className="text-sm font-medium text-[#E6E8EC] hover:text-[#D4AF37] transition-colors duration-300 cursor-pointer"
                 >
                   {item.name}
                 </a>
@@ -118,6 +133,7 @@ const Header: React.FC = () => {
 
             <div className="hidden lg:block">
               <motion.button
+                onClick={onContactClick}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 animate={{
@@ -172,13 +188,17 @@ const Header: React.FC = () => {
                         href={item.href}
                         className="text-2xl font-semibold text-[#E6E8EC] my-4"
                         variants={itemVariants}
-                        onClick={() => setIsOpen(false)}
+                        onClick={(e) => handleNavClick(e, item.href)}
                     >
                         {item.name}
                     </motion.a>
                 ))}
                 <motion.div variants={itemVariants} className="mt-8">
                      <motion.button
+                        onClick={() => {
+                            onContactClick();
+                            setIsOpen(false);
+                        }}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         className="px-8 py-3 text-lg font-semibold text-[#0A0D14] bg-[#D4AF37] rounded-full shadow-lg shadow-[#D4AF37]/20"

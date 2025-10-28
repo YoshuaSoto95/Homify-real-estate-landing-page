@@ -6,6 +6,7 @@ interface ContactModalProps {
     onClose: () => void;
     onSuccess: () => void;
     realtorName?: string;
+    propertyTitle?: string;
 }
 
 const backdropVariants = {
@@ -45,14 +46,24 @@ interface FormErrors {
     message?: string;
 }
 
-const ContactModal: React.FC<ContactModalProps> = ({ onClose, onSuccess, realtorName }) => {
+const ContactModal: React.FC<ContactModalProps> = ({ onClose, onSuccess, realtorName, propertyTitle }) => {
+    const getInitialMessage = () => {
+        if (realtorName) {
+            return `Hello ${realtorName}, I am interested in discussing real estate opportunities with you.`;
+        }
+        if (propertyTitle) {
+            return `Hello, I am interested in learning more about the property: "${propertyTitle}".`;
+        }
+        return '';
+    };
+
     const [formData, setFormData] = useState<FormState>({
         fullName: '',
         email: '',
         phone: '',
         state: '',
         investmentType: '',
-        message: realtorName ? `Hello ${realtorName}, I am interested in discussing real estate opportunities with you.` : ''
+        message: getInitialMessage()
     });
     const [errors, setErrors] = useState<FormErrors>({});
 
@@ -95,6 +106,18 @@ const ContactModal: React.FC<ContactModalProps> = ({ onClose, onSuccess, realtor
         }
     };
 
+    const getTitle = () => {
+        if (realtorName) return `Contact ${realtorName}`;
+        if (propertyTitle) return 'Inquire About Property';
+        return 'Contact Us';
+    };
+
+    const getDescription = () => {
+        if (realtorName) return `Fill out the form below to get in touch with ${realtorName}.`;
+        if (propertyTitle) return `Please provide your details, and an agent will contact you about "${propertyTitle}".`;
+        return "Fill out the form below and we'll get back to you shortly.";
+    };
+
     const inputClass = "w-full bg-[#0A0D14] border border-white/20 rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-[#D4AF37] focus:border-[#D4AF37] outline-none transition";
     const errorClass = "text-red-400 text-xs mt-1";
 
@@ -115,13 +138,10 @@ const ContactModal: React.FC<ContactModalProps> = ({ onClose, onSuccess, realtor
             >
                 <div className="p-8">
                     <h2 className="text-2xl font-bold text-white mb-2">
-                        {realtorName ? `Contact ${realtorName}` : 'Contact Us'}
+                        {getTitle()}
                     </h2>
                     <p className="text-md text-[#9AA3B2] mb-6">
-                        {realtorName
-                            ? `Fill out the form below to get in touch with ${realtorName}.`
-                            : "Fill out the form below and we'll get back to you shortly."
-                        }
+                       {getDescription()}
                     </p>
                     
                     <form onSubmit={handleSubmit} className="space-y-4">

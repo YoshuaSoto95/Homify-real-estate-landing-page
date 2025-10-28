@@ -20,6 +20,7 @@ interface Property {
 interface PropertyModalProps {
     property: Property;
     onClose: () => void;
+    onContactAgent: () => void;
 }
 
 const backdropVariants = {
@@ -55,7 +56,7 @@ const modalVariants = {
     }
 };
 
-const PropertyModal: React.FC<PropertyModalProps> = ({ property, onClose }) => {
+const PropertyModal: React.FC<PropertyModalProps> = ({ property, onClose, onContactAgent }) => {
     return (
         <motion.div
             className="fixed inset-0 bg-black/70 z-50 flex justify-center items-center p-4"
@@ -112,7 +113,10 @@ const PropertyModal: React.FC<PropertyModalProps> = ({ property, onClose }) => {
 
                         <p className="text-md leading-relaxed text-[#9AA3B2] mb-8">{property.description}</p>
                         
-                        <button className="w-full px-4 py-3 text-base font-semibold text-[#0A0D14] bg-[#D4AF37] rounded-full shadow-lg shadow-[#D4AF37]/20 hover:bg-yellow-300 transition-colors duration-300">
+                        <button 
+                            onClick={onContactAgent}
+                            className="w-full px-4 py-3 text-base font-semibold text-[#0A0D14] bg-[#D4AF37] rounded-full shadow-lg shadow-[#D4AF37]/20 hover:bg-yellow-300 transition-colors duration-300"
+                        >
                             Contact Agent
                         </button>
                     </div>

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BedIcon } from './icons/BedIcon';
 import { BathIcon } from './icons/BathIcon';
@@ -100,26 +100,65 @@ const containerVariants = {
     },
   };
 
-const Properties: React.FC = () => {
+interface PropertiesProps {
+    onContactClick: (context: { realtorName?: string; propertyTitle?: string; }) => void;
+}
+
+const Properties: React.FC<PropertiesProps> = ({ onContactClick }) => {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+    const intervalRef = useRef<number | null>(null);
+    const cardWidthRef = useRef(0);
 
-
-    const scroll = (scrollOffset: number) => {
+    const scroll = (direction: number) => {
         if (scrollContainerRef.current) {
-            // Select the first card element to calculate the scroll amount.
-            const card = scrollContainerRef.current.querySelector('div > div') as HTMLElement;
-            if (card) {
-                const cardWidth = card.offsetWidth;
-                const gap = 32; // Corresponds to gap-8
-                scrollContainerRef.current.scrollBy({ left: (cardWidth + gap) * scrollOffset, behavior: 'smooth' });
+            if (!cardWidthRef.current) {
+                const card = scrollContainerRef.current.querySelector('div > div') as HTMLElement;
+                if (card) cardWidthRef.current = card.offsetWidth;
             }
+            const gap = 32; // Corresponds to gap-8
+            scrollContainerRef.current.scrollBy({ left: (cardWidthRef.current + gap) * direction, behavior: 'smooth' });
         }
+    };
+
+    const startAutoScroll = () => {
+        stopAutoScroll();
+        intervalRef.current = window.setInterval(() => {
+            if (scrollContainerRef.current) {
+                const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+                if (scrollLeft + clientWidth >= scrollWidth - 10) {
+                    scrollContainerRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+                } else {
+                    scroll(1);
+                }
+            }
+        }, 4000);
+    };
+
+    const stopAutoScroll = () => {
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+        }
+    };
+
+    useEffect(() => {
+        startAutoScroll();
+        return () => stopAutoScroll();
+    }, []);
+
+    const handleContactAgent = (property: Property) => {
+        setSelectedProperty(null);
+        onContactClick({ propertyTitle: property.title });
+    };
+
+    const resetAutoScroll = () => {
+        stopAutoScroll();
+        startAutoScroll();
     };
     
   return (
     <>
-    <section className="bg-[#0A0D14] py-24 sm:py-32">
+    <section id="properties" className="bg-[#0A0D14] py-24 sm:py-32">
       <div className="container mx-auto px-6 lg:px-8">
         <div className="text-center">
           <h2 className="text-base font-semibold leading-7 text-[#D4AF37]">
@@ -133,7 +172,11 @@ const Properties: React.FC = () => {
           </p>
         </div>
 
-        <div className="mt-16 relative">
+        <div
+          className="mt-16 relative"
+          onMouseEnter={stopAutoScroll}
+          onMouseLeave={startAutoScroll}
+        >
             <motion.div
                 ref={scrollContainerRef}
                 className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth py-4 scrollbar-hide -mx-6 px-6"
@@ -177,14 +220,14 @@ const Properties: React.FC = () => {
             {/* Carousel Controls */}
             <div className="absolute top-1/2 -translate-y-1/2 w-full flex justify-between px-0 pointer-events-none -mt-4">
                 <button 
-                    onClick={() => scroll(-1)}
+                    onClick={() => { scroll(-1); resetAutoScroll(); }}
                     className="pointer-events-auto bg-[#0A0D14]/50 hover:bg-[#D4AF37] text-white hover:text-black rounded-full p-2 transition-colors duration-300 -ml-4"
                     aria-label="Previous property"
                 >
                     <ChevronLeftIcon className="h-6 w-6" />
                 </button>
                 <button 
-                    onClick={() => scroll(1)}
+                    onClick={() => { scroll(1); resetAutoScroll(); }}
                     className="pointer-events-auto bg-[#0A0D14]/50 hover:bg-[#D4AF37] text-white hover:text-black rounded-full p-2 transition-colors duration-300 -mr-4"
                     aria-label="Next property"
                 >
@@ -200,6 +243,7 @@ const Properties: React.FC = () => {
             <PropertyModal 
                 property={selectedProperty} 
                 onClose={() => setSelectedProperty(null)} 
+                onContactAgent={() => handleContactAgent(selectedProperty)}
             />
         )}
     </AnimatePresence>
